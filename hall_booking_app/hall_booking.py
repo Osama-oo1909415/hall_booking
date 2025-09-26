@@ -47,9 +47,6 @@ class Booking(db.Model):
 # Read and encode the logo image
 logo_base64 = ""
 try:
-    # [FIX] Corrected the path to the logo file.
-    # The script and the logo are in the same directory ('hall_booking_app'),
-    # so we refer to it directly.
     with open("Logo.jpg", "rb") as image_file:
         logo_base64 = base64.b64encode(image_file.read()).decode('utf-8')
 except FileNotFoundError:
@@ -57,8 +54,6 @@ except FileNotFoundError:
 
 
 with app.app_context():
-    # [FIX] Ensure the instance folder exists where the SQLite DB is stored.
-    # This is crucial for environments like Render where the filesystem is ephemeral.
     os.makedirs(app.instance_path, exist_ok=True)
     db.create_all()
 
@@ -259,7 +254,7 @@ BASE = r"""
     {% endwith %}
     {{ body|safe }}
   </div>
-  <div class="footer">©️ {{ now.year }} — MOVO Hall Booking</div>
+  <div class="footer">©️ {{ now.year }} — Operated by Movo</div>
 </body>
 </html>
 """
@@ -420,6 +415,11 @@ def create_booking():
         flash("صيغة الوقت غير صحيحة.", "err")
         return redirect(url_for("index"))
 
+    # [FIX] Automatically handle overnight bookings. If the end time on the same
+    # day is earlier than the start time, it implies the booking crosses midnight.
+    if end_at.date() == start_at.date() and end_at.time() < start_at.time():
+        end_at += timedelta(days=1)
+
     now_in_qatar = datetime.now(APP_TZ).replace(tzinfo=None, second=0, microsecond=0)
     if start_at < now_in_qatar:
         flash("لا يمكن إنشاء حجز في وقت قد مضى.", "err")
@@ -470,6 +470,5 @@ def health():
     return {"ok": True, "now": datetime.now().isoformat(timespec="seconds")}
 
 if __name__ == "__main__":
-    # To run locally, make sure Logo.jpg is in the hall_booking_app folder
     app.run(debug=True)
 
