@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 import os
 import re
 import pytz
+import base64
 from dateutil.parser import parse as dtparse
 
 from flask import Flask, request, redirect, url_for, render_template_string, flash, jsonify
@@ -42,6 +43,18 @@ class Booking(db.Model):
             start_at=self.start_at.strftime("%Y-%m-%d %H:%M"),
             end_at=self.end_at.strftime("%Y-%m-%d %H:%M"),
         )
+
+# Read and encode the logo image
+logo_base64 = ""
+try:
+    # [FIX] Corrected the path to the logo file.
+    # The script and the logo are in the same directory ('hall_booking_app'),
+    # so we refer to it directly.
+    with open("Logo.jpg", "rb") as image_file:
+        logo_base64 = base64.b64encode(image_file.read()).decode('utf-8')
+except FileNotFoundError:
+    print("Warning: Logo.jpg not found. The logo will not be displayed.")
+
 
 with app.app_context():
     # [FIX] Ensure the instance folder exists where the SQLite DB is stored.
@@ -105,7 +118,7 @@ BASE = r"""
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px 24px;
+      padding: 12px 24px;
       background: var(--card-bg);
       box-shadow: 0 2px 8px rgba(0,0,0,.06);
       position: sticky;
@@ -117,11 +130,6 @@ BASE = r"""
       align-items: center;
       gap: 12px;
       font-weight: 700;
-    }
-    h1 {
-      font-size: 22px;
-      margin: 0;
-      color: var(--brand-raven);
     }
     .container {
       max-width: 1024px;
@@ -237,8 +245,7 @@ BASE = r"""
 <body>
   <header>
     <div class="header-title">
-        <img src="data:image/jpg;base64,PASTE_YOUR_BASE64_STRING_HERE" alt="MOVO Logo" width="28" height="28">
-        <h1>MOVO</h1>
+        <img src="data:image/jpeg;base64,{{ logo_base64 }}" alt="شعار MOVO" style="height: 36px; width: auto;">
     </div>
     <div><a class="btn" href="{{ url_for('index') }}">اليوم</a></div>
   </header>
@@ -339,6 +346,7 @@ def render(body_html: str, **ctx):
         BASE,
         body=body_html,
         now=datetime.now(APP_TZ),
+        logo_base64=logo_base64,
         **ctx
     )
 
@@ -357,8 +365,6 @@ def index():
     else:
         selected_date = today_in_qatar
 
-    # [FIX] Ensure day_start is a naive datetime to match the naive datetimes stored in the DB.
-    # This prevents the "can't compare offset-naive and offset-aware datetimes" TypeError.
     day_start = datetime(selected_date.year, selected_date.month, selected_date.day)
     day_end   = day_start + timedelta(days=1)
 
@@ -464,5 +470,6 @@ def health():
     return {"ok": True, "now": datetime.now().isoformat(timespec="seconds")}
 
 if __name__ == "__main__":
+    # To run locally, make sure Logo.jpg is in the hall_booking_app folder
     app.run(debug=True)
 
