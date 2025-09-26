@@ -47,7 +47,11 @@ class Booking(db.Model):
 # Read and encode the logo image
 logo_base64 = ""
 try:
-    with open("Logo.jpg", "rb") as image_file:
+    # [FIX] Construct an absolute path to the logo file relative to the script's location.
+    # This ensures the logo is found correctly when running on Render's server.
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    logo_path = os.path.join(script_dir, "Logo.jpg")
+    with open(logo_path, "rb") as image_file:
         logo_base64 = base64.b64encode(image_file.read()).decode('utf-8')
 except FileNotFoundError:
     print("Warning: Logo.jpg not found. The logo will not be displayed.")
