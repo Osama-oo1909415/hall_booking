@@ -237,10 +237,7 @@ BASE = r"""
 <body>
   <header>
     <div class="header-title">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M13.293 4.293L14.707 5.707L9.414 11H20V13H9.414L14.707 18.293L13.293 19.707L5.586 12L13.293 4.293Z" fill="#7400FF"/>
-            <path d="M4 3H6V21H4V3Z" fill="#1D1D1B"/>
-        </svg>
+        <img src="data:image/jpg;base64,PASTE_YOUR_BASE64_STRING_HERE" alt="MOVO Logo" width="28" height="28">
         <h1>MOVO</h1>
     </div>
     <div><a class="btn" href="{{ url_for('index') }}">اليوم</a></div>
