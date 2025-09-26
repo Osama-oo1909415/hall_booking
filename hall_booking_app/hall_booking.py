@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 from datetime import datetime, timedelta
+import os
 import re
 import pytz
 from dateutil.parser import parse as dtparse
@@ -43,7 +44,9 @@ class Booking(db.Model):
         )
 
 with app.app_context():
-    app.instance_path_exists = True
+    # [FIX] Ensure the instance folder exists where the SQLite DB is stored.
+    # This is crucial for environments like Render where the filesystem is ephemeral.
+    os.makedirs(app.instance_path, exist_ok=True)
     db.create_all()
 
 
@@ -357,7 +360,9 @@ def index():
     else:
         selected_date = today_in_qatar
 
-    day_start = datetime.combine(selected_date, datetime.min.time())
+    # [FIX] Ensure day_start is a naive datetime to match the naive datetimes stored in the DB.
+    # This prevents the "can't compare offset-naive and offset-aware datetimes" TypeError.
+    day_start = datetime(selected_date.year, selected_date.month, selected_date.day)
     day_end   = day_start + timedelta(days=1)
 
     bookings = (Booking.query
