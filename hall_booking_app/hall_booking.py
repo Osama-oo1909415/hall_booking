@@ -254,7 +254,7 @@ BASE = r"""
     {% endwith %}
     {{ body|safe }}
   </div>
-  <div class="footer">©️ {{ now.year }} — Operated by Movo</div>
+  <div class="footer">©️ {{ now.year }} — Operated by Movo Systems</div>
 </body>
 </html>
 """
