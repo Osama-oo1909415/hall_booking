@@ -404,8 +404,6 @@ def create_booking():
         flash("صيغة الوقت غير صحيحة.", "err")
         return redirect(url_for("index"))
 
-    # [FIX] Automatically handle overnight bookings. If the end time on the same
-    # day is earlier than the start time, it implies the booking crosses midnight.
     if end_at.date() == start_at.date() and end_at.time() < start_at.time():
         end_at += timedelta(days=1)
 
