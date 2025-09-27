@@ -1,0 +1,10 @@
+# Firebase SDKs
+firebase-functions
+firebase-admin
+
+# Web framework (Flask) and related libraries
+flask
+flask-cors
+pytz
+python-dateutil
+

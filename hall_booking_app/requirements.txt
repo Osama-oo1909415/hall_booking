@@ -1,6 +1,0 @@
-Flask
-SQLAlchemy
-python-dateutil
-pytz
-gunicorn
-Flask-SQLAlchemy
